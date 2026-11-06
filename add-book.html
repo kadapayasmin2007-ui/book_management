@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Book | BookNest</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <h1>📚 BookNest</h1>
+    <p>Book Management System</p>
+</header>
+
+<nav>
+    <a href="/">Home</a>
+    <a href="add-book.html">Add Book</a>
+    <a href="view-books.html">View Books</a>
+</nav>
+
+<main class="container">
+    <h2>Add New Book</h2>
+    <p>Enter the book details below.</p>
+
+    <form id="bookForm">
+
+        <label>Book Name</label>
+        <input type="text" id="book_name"
+               placeholder="Enter book name" required>
+
+        <label>Author</label>
+        <input type="text" id="author"
+               placeholder="Enter author name" required>
+
+        <label>Category</label>
+        <input type="text" id="category"
+               placeholder="Enter book category" required>
+
+        <label>Price</label>
+        <input type="number" id="price"
+               placeholder="Enter price" min="0" step="0.01" required>
+
+        <label>Stock</label>
+        <input type="number" id="stock"
+               placeholder="Enter stock quantity" min="0" required>
+
+        <button type="submit">Add Book</button>
+
+        <p id="message"></p>
+    </form>
+</main>
+
+<footer>
+    <p>© 2026 BookNest | Book Management System</p>
+</footer>
+
+<script>
+document.getElementById("bookForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const book = {
+        book_name: document.getElementById("book_name").value,
+        author: document.getElementById("author").value,
+        category: document.getElementById("category").value,
+        price: document.getElementById("price").value,
+        stock: document.getElementById("stock").value
+    };
+
+    try {
+        const response = await fetch("/books", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(book)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            document.getElementById("message").innerText =
+                "Book added successfully!";
+            document.getElementById("bookForm").reset();
+        } else {
+            document.getElementById("message").innerText =
+                result.error || "Unable to add book.";
+        }
+    } catch (error) {
+        document.getElementById("message").innerText =
+            "Server connection failed!";
+    }
+});
+</script>
+
+</body>
+</html>

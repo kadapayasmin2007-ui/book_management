@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Book | BookNest</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <h1>📚 BookNest</h1>
+    <p>Book Management System</p>
+</header>
+
+<nav>
+    <a href="/">Home</a>
+    <a href="add-book.html">Add Book</a>
+    <a href="view-books.html">View Books</a>
+</nav>
+
+<main class="container">
+    <h2>Update Book Details</h2>
+    <p>Edit the book information below.</p>
+
+    <form id="updateForm">
+
+        <label>Book ID</label>
+        <input type="text" id="book_id" readonly>
+
+        <label>Book Name</label>
+        <input type="text" id="book_name" required>
+
+        <label>Author</label>
+        <input type="text" id="author" required>
+
+        <label>Category</label>
+        <input type="text" id="category" required>
+
+        <label>Price</label>
+        <input type="number" id="price" min="0" step="0.01" required>
+
+        <label>Stock</label>
+        <input type="number" id="stock" min="0" required>
+
+        <button type="submit">Update Book</button>
+
+        <p id="message"></p>
+
+        <a href="view-books.html">← Back to View Books</a>
+
+    </form>
+</main>
+
+<footer>
+    <p>© 2026 BookNest | Book Management System</p>
+</footer>
+
+<script>
+
+// GET BOOK ID FROM URL
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
+
+// LOAD BOOK DETAILS
+async function loadBook() {
+
+    const message = document.getElementById("message");
+
+    if (!id) {
+        message.innerText = "Book ID is missing!";
+        return;
+    }
+
+    try {
+
+        const response = await fetch("/books/" + encodeURIComponent(id));
+
+        if (!response.ok) {
+            throw new Error("Book not found!");
+        }
+
+        const book = await response.json();
+
+        document.getElementById("book_id").value = book.book_id;
+        document.getElementById("book_name").value = book.book_name;
+        document.getElementById("author").value = book.author || "";
+        document.getElementById("category").value = book.category || "";
+        document.getElementById("price").value = book.price;
+        document.getElementById("stock").value = book.stock;
+
+    } catch (error) {
+
+        message.innerText = error.message;
+
+    }
+}
+
+
+// UPDATE BOOK DETAILS
+document.getElementById("updateForm").addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    const message = document.getElementById("message");
+
+    if (!id) {
+        message.innerText = "Book ID is missing!";
+        return;
+    }
+
+    const book = {
+
+        book_name: document.getElementById("book_name").value.trim(),
+        author: document.getElementById("author").value.trim(),
+        category: document.getElementById("category").value.trim(),
+        price: Number(document.getElementById("price").value),
+        stock: Number(document.getElementById("stock").value)
+
+    };
+
+    try {
+
+        const response = await fetch("/books/" + encodeURIComponent(id), {
+
+            method: "PUT",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify(book)
+
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || result.message || "Update failed!");
+        }
+
+        message.innerText = "Book updated successfully!";
+
+        setTimeout(function() {
+            window.location.href = "view-books.html";
+        }, 1000);
+
+    } catch (error) {
+
+        message.innerText = error.message;
+
+    }
+
+});
+
+
+// CALL LOAD FUNCTION
+loadBook();
+
+</script>
+
+</body>
+</html>
